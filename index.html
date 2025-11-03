@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="A tiny single-file responsive Tailwind page that says 'Hello Space'." />
+  <title>Hello Space</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind custom configuration (optional, kept minimal)
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            space: {
+              50: '#f5f7ff',
+              100: '#e6eefc',
+              200: '#cfe0fa',
+              300: '#99c7f4',
+              400: '#66aef0',
+              500: '#3b93ea',
+              600: '#2f6fd1',
+              700: '#2456a6',
+              800: '#1a3b75',
+              900: '#0f2649'
+            }
+          },
+          keyframes: {
+            float: {
+              '0%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' },
+              '100%': { transform: 'translateY(0px)' }
+            }
+          },
+          animation: {
+            float: 'float 6s ease-in-out infinite'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Additional local styles for starfield overlay and accessibility */
+    html, body, #app { height: 100%; }
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: radial-gradient(ellipse at 10% 10%, rgba(255,255,255,0.04), transparent 8%),
+                  radial-gradient(ellipse at 90% 90%, rgba(255,255,255,0.02), transparent 10%),
+                  linear-gradient(180deg, #071226 0%, #001022 60%, #000814 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+
+    /* Full-screen canvas for the animated starfield */
+    canvas#starfield {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Soft glow behind the heading */
+    .glow {
+      filter: drop-shadow(0 10px 30px rgba(67, 156, 255, 0.12)) drop-shadow(0 2px 6px rgba(99, 102, 241, 0.05));
+    }
+
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .animate-float { animation: none !important; }
+      canvas#starfield { display: none; }
+    }
+  </style>
+</head>
+<body class="text-slate-100 antialiased">
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <div id="app" class="relative min-h-screen flex items-center justify-center px-6 py-12">
+    <div class="relative z-10 w-full max-w-4xl">
+      <div class="flex flex-col md:flex-row items-center gap-8 bg-gradient-to-b from-black/30 to-white/2 border border-white/5 rounded-2xl p-8 md:p-12 shadow-2xl">
+
+        <!-- Left: Text content -->
+        <div class="flex-1 text-center md:text-left">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-sky-400 to-indigo-400 glow">Hello Space</span>
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base max-w-prose mb-6">Welcome to this tiny single-file responsive page built with Tailwind CSS. It demonstrates a lightweight animated starfield, accessible motion preferences, and a beautiful center-first layout that says exactly what it needs: Hello Space.</p>
+
+          <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3 justify-center md:justify-start">
+            <button id="copyBtn" class="inline-flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 transition-colors text-white text-sm font-medium px-4 py-2 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-300" aria-label="Copy greeting">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8m-6 8h6a2 2 0 002-2V8a2 2 0 00-2-2h-6l-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h2z" />
+              </svg>
+              Copy "Hello Space"
+            </button>
+
+            <button id="themeToggle" class="inline-flex items-center gap-2 border border-white/10 bg-white/3 hover:bg-white/5 text-white text-sm px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-300" aria-pressed="false" aria-label="Toggle theme">
+              <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a.75.75 0 01.75.75V4a.75.75 0 01-1.5 0V2.75A.75.75 0 0110 2zM10 16a.75.75 0 01.75.75V18a.75.75 0 01-1.5 0v-1.25A.75.75 0 0110 16zM4 10a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H4.75A.75.75 0 014 10zM14 10a.75.75 0 01.75-.75H16a.75.75 0 010 1.5h-1.25A.75.75 0 0114 10zM5.05 5.05a.75.75 0 011.06 0L7.5 6.44a.75.75 0 01-1.06 1.06L5.05 6.11a.75.75 0 010-1.06zM12.5 13.56a.75.75 0 011.06 0l1.39 1.39a.75.75 0 11-1.06 1.06l-1.39-1.39a.75.75 0 010-1.06zM12.56 6.44a.75.75 0 010 1.06L11.17 8.89a.75.75 0 11-1.06-1.06l1.39-1.39a.75.75 0 011.06 0zM6.44 13.56a.75.75 0 010 1.06l-1.39 1.39a.75.75 0 11-1.06-1.06l1.39-1.39a.75.75 0 011.06 0z" />
+              </svg>
+              Theme
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Decorative planet / rocket -->
+        <div class="flex-1 flex items-center justify-center md:justify-end">
+          <div class="bg-gradient-to-br from-indigo-700/50 to-sky-600/30 rounded-3xl p-6 w-52 h-52 flex items-center justify-center shadow-inner animate-float">
+            <!-- Rocket SVG (pure inline, accessible) -->
+            <svg role="img" aria-label="Rocket flying" viewBox="0 0 64 64" class="w-36 h-36">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#7dd3fc" />
+                  <stop offset="100%" stop-color="#60a5fa" />
+                </linearGradient>
+              </defs>
+              <g fill="none" fill-rule="evenodd">
+                <path d="M24 36c4 4 12 12 12 12s8-8 12-12c4-4-12-20-12-20S20 32 24 36z" fill="url(#g1)" />
+                <path d="M20 44c0 0-5 1-7 3s3 3 6 2 7-4 7-4-5-1-6-1z" fill="#fca5a5" opacity=".9" />
+                <circle cx="28" cy="28" r="3" fill="#fff" opacity=".85" />
+                <path d="M40 38s6-6 6-12-8 2-8 2-2 8 2 10z" fill="#60a5fa" opacity=".6" />
+              </g>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="mt-6 text-center text-xs text-slate-400">Made with minimal code • Responsive • Tailwind CSS</footer>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Respect reduced motion
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Starfield canvas animation
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let w = 0, h = 0, DPR = Math.max(1, window.devicePixelRatio || 1);
+
+      function resize() {
+        w = canvas.clientWidth;
+        h = canvas.clientHeight;
+        canvas.width = Math.floor(w * DPR);
+        canvas.height = Math.floor(h * DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        initStars();
+      }
+
+      function initStars() {
+        stars = [];
+        const count = Math.max(60, Math.floor((w * h) / 5000));
+        for (let i = 0; i < count; i++) {
+          stars.push(createStar());
+        }
+      }
+
+      function createStar() {
+        return {
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.6 + 0.2,
+          alpha: Math.random() * 0.8 + 0.2,
+          vx: (Math.random() - 0.5) * 0.05,
+          vy: (Math.random() - 0.5) * 0.05,
+          twinkle: Math.random() * 0.02 + 0.003
+n        };
+      }
+
+      function draw() {
+        if (prefersReduced) return;
+        ctx.clearRect(0, 0, w, h);
+        // soft gradient overlay
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, 'rgba(255,255,255,0.02)');
+        grd.addColorStop(1, 'rgba(0,0,0,0.02)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          s.x += s.vx;
+          s.y += s.vy;
+          s.alpha += Math.sin(performance.now() / 1000 + i) * s.twinkle * 0.02;
+          if (s.x < 0) s.x = w;
+          if (s.x > w) s.x = 0;
+          if (s.y < 0) s.y = h;
+          if (s.y > h) s.y = 0;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,${Math.max(0, Math.min(1, s.alpha))})`;
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // subtle shooting star occasionally
+        if (Math.random() > 0.996) {
+          shootingStar();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      function shootingStar() {
+        const sx = Math.random() * w * 0.8 + w * 0.1;
+        const sy = Math.random() * h * 0.2 + h * 0.05;
+        const len = Math.random() * 120 + 80;
+        const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3;
+        const vx = Math.cos(angle) * 12;
+        const vy = Math.sin(angle) * 12;
+        let x = sx, y = sy;
+        const life = 0;
+
+        function step() {
+          ctx.beginPath();
+          const grad = ctx.createLinearGradient(x, y, x - vx, y - vy);
+          grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2;
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - vx * 4, y - vy * 4);
+          ctx.stroke();
+          x += vx; y += vy;
+        }
+
+        // draw for a few frames
+        const frames = 20;
+        let f = 0;
+        (function loop() {
+          if (f++ > frames) return;
+          step();
+          requestAnimationFrame(loop);
+        })();
+      }
+
+      // Setup on load
+      function start() {
+        resize();
+        if (!prefersReduced) draw();
+      }
+
+      window.addEventListener('resize', () => {
+        // debounce simple
+        clearTimeout(window._rs);
+        window._rs = setTimeout(resize, 120);
+      });
+
+      // Initialize after next paint to ensure client sizes are available
+      requestAnimationFrame(start);
+
+      // Copy button logic
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.addEventListener('click', async function () {
+        try {
+          await navigator.clipboard.writeText('Hello Space');
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8m-6 8h6a2 2 0 002-2V8a2 2 0 00-2-2h-6l-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h2z" /></svg> Copy \"Hello Space\"'; }, 1600);
+        } catch (err) {
+          copyBtn.textContent = 'Unable to copy';
+          setTimeout(() => { copyBtn.textContent = 'Copy "Hello Space"'; }, 1600);
+        }
+      });
+
+      // Theme toggle: toggles reduced-brightness / accent via class on html
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+      const THEME_KEY = 'hello-space-theme';
+
+      function applyTheme(dark) {
+        if (dark) {
+          document.documentElement.classList.add('dark');
+          themeToggle.setAttribute('aria-pressed', 'true');
+          themeIcon.innerHTML = '<path d="M10 2a8 8 0 100 16 8 8 0 000-16z" />';
+        } else {
+          document.documentElement.classList.remove('dark');
+          themeToggle.setAttribute('aria-pressed', 'false');
+          themeIcon.innerHTML = '<path d="M10 2a.75.75 0 01.75.75V4a.75.75 0 01-1.5 0V2.75A.75.75 0 0110 2zM10 16a.75.75 0 01.75.75V18a.75.75 0 01-1.5 0v-1.25A.75.75 0 0110 16zM4 10a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H4.75A.75.75 0 014 10zM14 10a.75.75 0 01.75-.75H16a.75.75 0 010 1.5h-1.25A.75.75 0 0114 10zM5.05 5.05a.75.75 0 011.06 0L7.5 6.44a.75.75 0 01-1.06 1.06L5.05 6.11a.75.75 0 010-1.06zM12.5 13.56a.75.75 0 011.06 0l1.39 1.39a.75.75 0 11-1.06 1.06l-1.39-1.39a.75.75 0 010-1.06zM12.56 6.44a.75.75 0 010 1.06L11.17 8.89a.75.75 0 11-1.06-1.06l1.39-1.39a.75.75 0 011.06 0zM6.44 13.56a.75.75 0 010 1.06l-1.39 1.39a.75.75 0 11-1.06-1.06l1.39-1.39a.75.75 0 011.06 0z" />';
+        }
+      }
+
+      // Initialize theme from localStorage (default: dark)
+      const saved = localStorage.getItem(THEME_KEY);
+      const initialDark = saved ? saved === 'dark' : true;
+      applyTheme(initialDark);
+
+      themeToggle.addEventListener('click', function () {
+        const isDark = document.documentElement.classList.contains('dark');
+        applyTheme(!isDark);
+        localStorage.setItem(THEME_KEY, !isDark ? 'dark' : 'light');
+      });
+
+      // Accessibility: keyboard focus ring visible
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') document.documentElement.classList.add('user-is-tabbing');
+      });
+    })();
+  </script>
+</body>
+</html>
